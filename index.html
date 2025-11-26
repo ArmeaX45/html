@@ -2,57 +2,65 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Carte 2 Téléphones</title>
+  <title>Blackjack P2P – PeerJS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- PeerJS depuis CDN -->
+  <!-- PeerJS -->
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 
   <style>
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: system-ui, sans-serif;
-      background: #111;
-      color: #fff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #145, #020b16);
+      color: #eee;
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      min-height: 100vh;
     }
 
-    .top {
-      padding: 10px;
-      background: #222;
+    .topbar {
+      background: rgba(0,0,0,0.7);
+      padding: 8px 10px;
       font-size: 14px;
     }
 
-    .top label {
-      font-size: 12px;
-      color: #aaa;
+    .topbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
     }
 
-    .top-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 6px;
-      flex-wrap: wrap;
+    .label {
+      font-size: 12px;
+      color: #aaa;
     }
 
     input[type="text"] {
       padding: 6px 8px;
       border-radius: 4px;
       border: none;
-      flex: 1;
       min-width: 0;
+      flex: 1;
     }
 
     button {
       padding: 6px 10px;
       border-radius: 4px;
       border: none;
-      background: #4caf50;
-      color: white;
+      background: #1db954;
+      color: #fff;
       font-weight: 600;
       cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    button.secondary {
+      background: #444;
     }
 
     button:disabled {
@@ -60,208 +68,1102 @@
       cursor: default;
     }
 
-    .status {
-      margin-top: 6px;
+    #status {
+      margin-top: 4px;
       font-size: 12px;
-      color: #0f0;
+      color: #9f9;
     }
 
-    .main {
+    .table {
       flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+      padding: 8px;
       position: relative;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
-    .hint {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 12px;
-      color: #aaa;
-      text-align: center;
-      padding: 4px 8px;
-      background: rgba(0,0,0,0.4);
-      border-radius: 6px;
-    }
-
-    /* La "carte" */
-    .card {
-      width: 120px;
-      height: 180px;
-      background: linear-gradient(145deg, #ffcc00, #ff8800);
+    .dealer-area, .players-area {
       border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.35);
+      padding: 8px;
+      margin: 4px 0;
+    }
+
+    .dealer-area {
+      flex: 0 0 auto;
+    }
+
+    .players-area {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .area-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #ccc;
+      margin-bottom: 4px;
+    }
+
+    .cards-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .card {
+      width: 38px;
+      height: 56px;
+      border-radius: 6px;
+      background: linear-gradient(145deg, #fff, #ddd);
+      color: #000;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 700;
-      color: #222;
-      position: absolute;
-      /* position de base : au centre */
-      transform: translateX(0);
+      box-shadow: 0 0 6px rgba(0,0,0,0.5);
+      position: relative;
     }
 
-    /* Animations */
-    @keyframes slideOutRight {
-      from { transform: translateX(0); }
-      to   { transform: translateX(140vw); }
+    .card.red { color: #c00; }
+
+    .card.back {
+      background: linear-gradient(135deg, #145, #0a2340);
+      color: #eee;
     }
 
-    @keyframes slideInLeft {
-      from { transform: translateX(-140vw); }
-      to   { transform: translateX(0); }
+    .player-box {
+      margin-bottom: 6px;
+      padding: 6px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.4);
     }
 
-    .card.send {
-      animation: slideOutRight 0.8s ease-out forwards;
+    .player-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      margin-bottom: 4px;
     }
 
-    .card.receive {
-      animation: slideInLeft 0.8s ease-out forwards;
+    .player-name {
+      font-weight: 600;
     }
 
+    .badge {
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: #555;
+      color: #eee;
+    }
+
+    .badge.you {
+      background: #1db954;
+      color: #000;
+    }
+
+    .badge.turn {
+      background: #f5a623;
+      color: #000;
+    }
+
+    .badge.bust {
+      background: #c0392b;
+    }
+
+    .badge.blackjack {
+      background: #9b59b6;
+    }
+
+    .hands {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .hand-box {
+      padding: 4px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+    }
+
+    .hand-box.active {
+      border-color: #f5a623;
+      background: rgba(0,0,0,0.4);
+    }
+
+    .hand-label {
+      font-size: 11px;
+      margin-bottom: 2px;
+      color: #ddd;
+    }
+
+    .hand-value {
+      font-size: 12px;
+      margin-left: 4px;
+      color: #fff;
+    }
+
+    .actions {
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 6px 8px;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .actions-info {
+      font-size: 12px;
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .flying-card {
+      position: fixed;
+      width: 40px;
+      height: 60px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #fff, #ddd);
+      box-shadow: 0 0 10px rgba(0,0,0,0.7);
+      top: 50%;
+      left: 50%;
+      margin: -30px 0 0 -20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    @keyframes fly-to-bottom {
+      from { transform: translate(-50%, -50%); opacity: 1; }
+      to   { transform: translate(-50%, 170px); opacity: 0; }
+    }
+
+    @keyframes fly-to-top {
+      from { transform: translate(-50%, 50px); opacity: 1; }
+      to   { transform: translate(-50%, -160px); opacity: 0; }
+    }
+
+    .fly-bottom { animation: fly-to-bottom 0.6s ease-out forwards; }
+    .fly-top    { animation: fly-to-top 0.6s ease-out forwards; }
+
+    .host-controls {
+      margin-top: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 12px;
+      align-items: center;
+    }
+
+    .small {
+      font-size: 11px;
+      color: #aaa;
+    }
   </style>
 </head>
 <body>
 
-  <div class="top">
-    <div>
-      <label>Ton ID :</label>
-      <span id="myId">...</span>
+  <div class="topbar">
+    <div><span class="label">Ton ID PeerJS :</span> <strong id="myId">…</strong></div>
+
+    <div class="topbar-row">
+      <button id="hostBtn" class="secondary">Je suis le croupier (host)</button>
+      <input id="hostIdInput" type="text" placeholder="ID du croupier">
+      <button id="connectBtn">Se connecter au croupier</button>
     </div>
 
-    <div class="top-row">
-      <input id="friendId" type="text" placeholder="ID de ton pote">
-      <button id="connectBtn">Se connecter</button>
-      <button id="sendBtn" disabled>Lancer la carte</button>
-    </div>
+    <div id="status">Initialisation de PeerJS…</div>
 
-    <div class="status" id="status">En attente de PeerJS…</div>
+    <div class="host-controls">
+      <button id="startRoundBtn" class="secondary" disabled>Démarrer la manche</button>
+      <button id="newRoundBtn" class="secondary" disabled>Nouvelle manche</button>
+      <span class="small" id="hostInfo"></span>
+    </div>
   </div>
 
-  <div class="main">
-    <div class="hint">
-      Tournez les deux téléphones en paysage,  
-      mettez-les côte à côte,  
-      puis connectez-vous et cliquez sur "Lancer la carte".
+  <div class="table">
+    <div class="dealer-area">
+      <div class="area-title">Croupier</div>
+      <div id="dealerCards" class="cards-row"></div>
+      <div id="dealerValue" style="font-size:12px;margin-top:2px;color:#ddd;"></div>
     </div>
 
-    <div class="card" id="card">
-      🃏
+    <div class="players-area">
+      <div class="area-title">Joueurs</div>
+      <div id="playersContainer"></div>
     </div>
+  </div>
+
+  <div class="actions">
+    <div class="actions-info" id="actionsInfo">En attente de connexion…</div>
+    <button id="hitBtn" disabled>Tirer</button>
+    <button id="standBtn" disabled>Rester</button>
+    <button id="doubleBtn" disabled>Doubler</button>
+    <button id="splitBtn" disabled>Split</button>
   </div>
 
   <script>
-    // --- Variables globales ---
-    const myIdSpan = document.getElementById('myId');
-    const friendIdInput = document.getElementById('friendId');
-    const connectBtn = document.getElementById('connectBtn');
-    const sendBtn = document.getElementById('sendBtn');
-    const statusDiv = document.getElementById('status');
-    const card = document.getElementById('card');
+    // ---------- Utilitaires Blackjack ----------
+    const SUITS = ["♠", "♥", "♦", "♣"];
+    const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
 
+    function createDeck() {
+      const deck = [];
+      for (const s of SUITS) {
+        for (const r of RANKS) {
+          deck.push({ rank: r, suit: s });
+        }
+      }
+      // Shuffle (Fisher-Yates)
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      return deck;
+    }
+
+    function cardValue(card) {
+      if (card.rank === "A") return 11;
+      if (["K","Q","J"].includes(card.rank)) return 10;
+      return parseInt(card.rank, 10);
+    }
+
+    function handValue(cards) {
+      let total = 0;
+      let aces = 0;
+      for (const c of cards) {
+        total += cardValue(c);
+        if (c.rank === "A") aces++;
+      }
+      while (total > 21 && aces > 0) {
+        total -= 10;
+        aces--;
+      }
+      return total;
+    }
+
+    function isBlackjack(cards) {
+      return cards.length === 2 && handValue(cards) === 21;
+    }
+
+    function cloneCard(c) {
+      return { rank: c.rank, suit: c.suit };
+    }
+
+    function cardToString(c) {
+      return c.rank + c.suit;
+    }
+
+    function isRedSuit(suit) {
+      return suit === "♥" || suit === "♦";
+    }
+
+    // ---------- Etat global ----------
     let peer = null;
-    let conn = null;
+    let myPeerId = null;
 
-    // --- Création PeerJS ---
-    // Nécessite Internet pour contacter le serveur peer par défaut
+    let isHost = false;
+    let serverConn = null; // pour le joueur -> croupier
+    let hostConnections = []; // pour le croupier : {conn, peerId, playerIndex}
+
+    let myPlayerId = null;
+    let currentState = null;
+    let myTurnAllowedActions = null;
+
+    // Etat du host (table)
+    let deck = [];
+    let tableState = {
+      phase: "waiting", // waiting | dealing | playerTurn | dealerTurn | results
+      dealerHand: [],
+      dealerHideHoleCard: true,
+      players: [], // {id, name, peerId, hands: [ [cards] , [cards]? ], activeHandIndex, status, result}
+      currentPlayerIndex: null,
+      message: ""
+    };
+
+    // ---------- DOM ----------
+    const myIdSpan = document.getElementById("myId");
+    const statusDiv = document.getElementById("status");
+    const hostBtn = document.getElementById("hostBtn");
+    const connectBtn = document.getElementById("connectBtn");
+    const hostIdInput = document.getElementById("hostIdInput");
+    const hostInfoSpan = document.getElementById("hostInfo");
+    const startRoundBtn = document.getElementById("startRoundBtn");
+    const newRoundBtn = document.getElementById("newRoundBtn");
+
+    const dealerCardsDiv = document.getElementById("dealerCards");
+    const dealerValueDiv = document.getElementById("dealerValue");
+    const playersContainer = document.getElementById("playersContainer");
+
+    const actionsInfo = document.getElementById("actionsInfo");
+    const hitBtn = document.getElementById("hitBtn");
+    const standBtn = document.getElementById("standBtn");
+    const doubleBtn = document.getElementById("doubleBtn");
+    const splitBtn = document.getElementById("splitBtn");
+
+    // ---------- PeerJS init ----------
     peer = new Peer();
 
-    peer.on('open', (id) => {
+    peer.on("open", id => {
+      myPeerId = id;
       myIdSpan.textContent = id;
-      statusDiv.textContent = "Donne ton ID à ton pote, ou entre le sien pour te connecter.";
+      statusDiv.textContent = "Choisis : croupier ou joueur.";
     });
 
-    peer.on('error', (err) => {
+    peer.on("error", err => {
       console.error(err);
       statusDiv.textContent = "Erreur PeerJS : " + err.type;
     });
 
-    // Quand quelqu'un se connecte à nous
-    peer.on('connection', (c) => {
-      conn = c;
-      setupConnectionHandlers();
+    peer.on("connection", conn => {
+      if (isHost) {
+        // Un joueur se connecte au croupier
+        handleNewPlayerConnection(conn);
+      } else {
+        // Au cas où le croupier initie la connexion (rare mais on gère)
+        if (!serverConn) {
+          serverConn = conn;
+          setupClientConnection(conn);
+        }
+      }
     });
 
-    // Bouton "Se connecter" (on initie une connexion vers le pote)
-    connectBtn.addEventListener('click', () => {
-      const friendId = friendIdInput.value.trim();
-      if (!friendId) {
-        alert("Entre l'ID de ton pote.");
+    // ---------- Rôle : Host / Joueur ----------
+    hostBtn.addEventListener("click", () => {
+      isHost = true;
+      statusDiv.textContent = "Mode croupier : donne ton ID aux joueurs.";
+      hostBtn.disabled = true;
+      hostInfoSpan.textContent = "En attente de joueurs…";
+    });
+
+    connectBtn.addEventListener("click", () => {
+      const hostId = hostIdInput.value.trim();
+      if (!hostId) {
+        alert("Entre l'ID du croupier.");
         return;
       }
-      statusDiv.textContent = "Connexion en cours...";
-      conn = peer.connect(friendId);
-      setupConnectionHandlers();
+      isHost = false;
+      statusDiv.textContent = "Connexion au croupier…";
+      serverConn = peer.connect(hostId);
+      setupClientConnection(serverConn);
     });
 
-    // Gestion de la connexion
-    function setupConnectionHandlers() {
-      if (!conn) return;
+    // ---------- Croupier : gestion des joueurs ----------
+    function handleNewPlayerConnection(conn) {
+      const playerIndex = tableState.players.length;
+      const playerObj = {
+        id: playerIndex + 1,
+        name: "Joueur " + (playerIndex + 1),
+        peerId: conn.peer,
+        hands: [[]],
+        activeHandIndex: 0,
+        status: "waiting", // waiting | playing | done | bust | blackjack
+        result: null
+      };
+      tableState.players.push(playerObj);
+      hostConnections.push({ conn, peerId: conn.peer, playerIndex });
 
-      conn.on('open', () => {
-        statusDiv.textContent = "Connecté à " + conn.peer + " ✅";
-        sendBtn.disabled = false;
+      conn.on("data", data => {
+        handleDataFromPlayer(conn, playerIndex, data);
       });
 
-      conn.on('data', (data) => {
-        // Quand on reçoit une commande
-        if (data && data.type === 'LAUNCH_CARD') {
-          playReceiveAnimation();
+      conn.on("close", () => {
+        playerObj.status = "disconnected";
+        broadcastState();
+      });
+
+      conn.on("error", err => {
+        console.error("Erreur connexion joueur :", err);
+      });
+
+      // Quand la connexion est ouverte, on attend son HELLO
+      conn.on("open", () => {
+        console.log("Joueur connecté (peerId=" + conn.peer + ")");
+        sendToConn(conn, { type: "WELCOME", playerId: playerObj.id });
+        updateHostInfo();
+        broadcastState();
+      });
+    }
+
+    function handleDataFromPlayer(conn, playerIndex, data) {
+      const player = tableState.players[playerIndex];
+      if (!data || typeof data !== "object") return;
+
+      if (data.type === "HELLO") {
+        if (data.name) player.name = data.name;
+        broadcastState();
+      }
+
+      if (data.type === "ACTION") {
+        handlePlayerAction(playerIndex, data.action);
+      }
+    }
+
+    function sendToConn(conn, payload) {
+      try {
+        conn.send(payload);
+      } catch (e) {
+        console.error("Erreur sendToConn :", e);
+      }
+    }
+
+    function broadcast(payload) {
+      for (const hc of hostConnections) {
+        sendToConn(hc.conn, payload);
+      }
+    }
+
+    function broadcastState() {
+      const exported = exportStateForClients();
+      broadcast({ type: "STATE", state: exported });
+      renderHostTable(); // le croupier se sert de l'état complet
+    }
+
+    function exportStateForClients() {
+      // On ne renvoie pas tout (ex : carte cachée du croupier)
+      const playersLight = tableState.players.map(p => ({
+        id: p.id,
+        name: p.name,
+        peerId: p.peerId,
+        hands: p.hands.map(hand => hand.map(cloneCard)),
+        activeHandIndex: p.activeHandIndex,
+        status: p.status,
+        result: p.result
+      }));
+
+      const dealerShownHand = tableState.dealerHand.map((c, idx) => {
+        if (idx === 1 && tableState.dealerHideHoleCard && tableState.phase !== "results") {
+          return { rank: "?", suit: "?" };
+        }
+        return cloneCard(c);
+      });
+
+      return {
+        phase: tableState.phase,
+        dealerHand: dealerShownHand,
+        dealerRealHand: tableState.dealerHideHoleCard ? null : tableState.dealerHand.map(cloneCard),
+        dealerHideHoleCard: tableState.dealerHideHoleCard,
+        players: playersLight,
+        currentPlayerIndex: tableState.currentPlayerIndex,
+        message: tableState.message
+      };
+    }
+
+    function updateHostInfo() {
+      hostInfoSpan.textContent =
+        "Joueurs connectés : " + tableState.players.length +
+        " | Phase : " + tableState.phase;
+      startRoundBtn.disabled = !(isHost && tableState.players.length > 0 && tableState.phase === "waiting");
+    }
+
+    // ---------- Host : démarrer / gérer une manche ----------
+    startRoundBtn.addEventListener("click", () => {
+      if (!isHost) return;
+      startNewRoundWithSamePlayers();
+    });
+
+    newRoundBtn.addEventListener("click", () => {
+      if (!isHost) return;
+      startNewRoundWithSamePlayers();
+    });
+
+    function startNewRoundWithSamePlayers() {
+      deck = createDeck();
+      tableState.phase = "dealing";
+      tableState.dealerHand = [];
+      tableState.dealerHideHoleCard = true;
+      tableState.currentPlayerIndex = null;
+      tableState.message = "Distribution des cartes…";
+
+      for (const p of tableState.players) {
+        p.hands = [[]];
+        p.activeHandIndex = 0;
+        p.status = "playing";
+        p.result = null;
+      }
+
+      updateHostInfo();
+      broadcastState();
+
+      dealInitialCardsSequence();
+    }
+
+    function dealInitialCardsSequence() {
+      const nPlayers = tableState.players.length;
+      const order = [];
+
+      // 1er tour : tous les joueurs puis croupier
+      for (let i = 0; i < nPlayers; i++) order.push({ type: "player", index: i });
+      order.push({ type: "dealer" });
+      // 2e tour
+      for (let i = 0; i < nPlayers; i++) order.push({ type: "player", index: i });
+      order.push({ type: "dealer" });
+
+      let idx = 0;
+
+      function step() {
+        if (idx >= order.length) {
+          // Fin de la distribution initiale
+          checkInitialBlackjacks();
+          startNextPlayerTurn();
+          return;
+        }
+        const target = order[idx++];
+        if (target.type === "player") {
+          dealCardToPlayer(target.index, true);
+        } else {
+          dealCardToDealer(true);
+        }
+        setTimeout(step, 600);
+      }
+      step();
+    }
+
+    function dealCardToPlayer(playerIndex, animate) {
+      const player = tableState.players[playerIndex];
+      const card = deck.pop();
+      const activeHand = player.hands[player.activeHandIndex];
+      activeHand.push(card);
+
+      if (animate) {
+        // Anim pour le croupier (vers le bas)
+        createFlyingCard("bottom", cardToString(card));
+        // Anim côté joueur, via message
+        const hc = hostConnections.find(h => h.playerIndex === playerIndex);
+        if (hc) {
+          sendToConn(hc.conn, { type: "DEAL_TO_YOU", card: cloneCard(card) });
+        }
+      }
+
+      // Maj statut blackjack après 2 cartes
+      if (activeHand.length === 2 && isBlackjack(activeHand)) {
+        player.status = "blackjack";
+      }
+
+      broadcastState();
+    }
+
+    function dealCardToDealer(animate) {
+      const card = deck.pop();
+      tableState.dealerHand.push(card);
+
+      if (animate) {
+        // Anim vers le haut sur le croupier
+        createFlyingCard("top", cardToString(card));
+        // Anim sur tous les joueurs (carte vers le haut)
+        broadcast({ type: "DEAL_TO_DEALER", card: cloneCard(card) });
+      }
+
+      broadcastState();
+    }
+
+    function checkInitialBlackjacks() {
+      let allBlackjackOrBust = true;
+      for (const p of tableState.players) {
+        const hand = p.hands[0];
+        if (isBlackjack(hand)) {
+          p.status = "blackjack";
+        } else {
+          allBlackjackOrBust = false;
+        }
+      }
+      // On laisse quand même la partie continuer normalement
+    }
+
+    function startNextPlayerTurn() {
+      tableState.phase = "playerTurn";
+
+      let idx = tableState.currentPlayerIndex == null ? 0 : tableState.currentPlayerIndex + 1;
+      const n = tableState.players.length;
+      let found = false;
+      for (; idx < n; idx++) {
+        const p = tableState.players[idx];
+        if (p.status === "playing") {
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        // plus de joueurs -> tour du croupier
+        startDealerTurn();
+        return;
+      }
+
+      tableState.currentPlayerIndex = idx;
+      tableState.message = "Tour de " + tableState.players[idx].name;
+      broadcastState();
+
+      const player = tableState.players[idx];
+      const hc = hostConnections.find(h => h.playerIndex === idx);
+      if (hc) {
+        const hand = player.hands[player.activeHandIndex];
+        const canDouble = (hand.length === 2);
+        const canSplit = (hand.length === 2 &&
+                          player.hands.length === 1 &&
+                          hand[0].rank === hand[1].rank);
+
+        sendToConn(hc.conn, {
+          type: "YOUR_TURN",
+          allowed: {
+            hit: true,
+            stand: true,
+            double: canDouble,
+            split: canSplit
+          }
+        });
+      }
+    }
+
+    function handlePlayerAction(playerIndex, action) {
+      const player = tableState.players[playerIndex];
+      if (tableState.phase !== "playerTurn") return;
+      if (tableState.currentPlayerIndex !== playerIndex) return;
+      if (player.status !== "playing") return;
+
+      const hand = player.hands[player.activeHandIndex];
+
+      if (action === "HIT") {
+        dealCardToPlayer(playerIndex, true);
+        const value = handValue(hand);
+        if (value > 21) {
+          // Bust de cette main
+          if (player.hands.length > 1 && player.activeHandIndex === 0) {
+            // on passe à la 2e main
+            player.activeHandIndex = 1;
+            tableState.message = player.name + " : 1ère main bust, 2e main";
+            broadcastState();
+            const hc = hostConnections.find(h => h.playerIndex === playerIndex);
+            if (hc) {
+              const hand2 = player.hands[player.activeHandIndex];
+              const canDouble2 = (hand2.length === 2);
+              sendToConn(hc.conn, {
+                type: "YOUR_TURN",
+                allowed: { hit: true, stand: true, double: canDouble2, split: false }
+              });
+            }
+          } else {
+            player.status = "bust";
+            broadcastState();
+            startNextPlayerTurn();
+          }
+        } else {
+          // Retour de main au même joueur
+          broadcastState();
+          const hc = hostConnections.find(h => h.playerIndex === playerIndex);
+          if (hc) {
+            const canDouble = false; // plus après avoir tiré
+            sendToConn(hc.conn, {
+              type: "YOUR_TURN",
+              allowed: { hit: true, stand: true, double: canDouble, split: false }
+            });
+          }
+        }
+      }
+
+      if (action === "STAND") {
+        if (player.hands.length > 1 && player.activeHandIndex === 0) {
+          // On passe à la deuxième main
+          player.activeHandIndex = 1;
+          tableState.message = player.name + " joue sa 2e main.";
+          broadcastState();
+          const hc = hostConnections.find(h => h.playerIndex === playerIndex);
+          if (hc) {
+            const hand2 = player.hands[player.activeHandIndex];
+            const canDouble2 = (hand2.length === 2);
+            sendToConn(hc.conn, {
+              type: "YOUR_TURN",
+              allowed: { hit: true, stand: true, double: canDouble2, split: false }
+            });
+          }
+        } else {
+          player.status = "done";
+          broadcastState();
+          startNextPlayerTurn();
+        }
+      }
+
+      if (action === "DOUBLE") {
+        if (hand.length === 2) {
+          dealCardToPlayer(playerIndex, true);
+          // On finit la main (stand forcé)
+          const value = handValue(hand);
+          if (value > 21) {
+            if (player.hands.length > 1 && player.activeHandIndex === 0) {
+              player.activeHandIndex = 1;
+              tableState.message = player.name + " : 1ère main bust, 2e main.";
+              broadcastState();
+              const hc = hostConnections.find(h => h.playerIndex === playerIndex);
+              if (hc) {
+                const hand2 = player.hands[player.activeHandIndex];
+                const canDouble2 = (hand2.length === 2);
+                sendToConn(hc.conn, {
+                  type: "YOUR_TURN",
+                  allowed: { hit: true, stand: true, double: canDouble2, split: false }
+                });
+              }
+            } else {
+              player.status = "bust";
+              broadcastState();
+              startNextPlayerTurn();
+            }
+          } else {
+            if (player.hands.length > 1 && player.activeHandIndex === 0) {
+              player.activeHandIndex = 1;
+              tableState.message = player.name + " joue sa 2e main.";
+              broadcastState();
+              const hc = hostConnections.find(h => h.playerIndex === playerIndex);
+              if (hc) {
+                const hand2 = player.hands[player.activeHandIndex];
+                const canDouble2 = (hand2.length === 2);
+                sendToConn(hc.conn, {
+                  type: "YOUR_TURN",
+                  allowed: { hit: true, stand: true, double: canDouble2, split: false }
+                });
+              }
+            } else {
+              player.status = "done";
+              broadcastState();
+              startNextPlayerTurn();
+            }
+          }
+        }
+      }
+
+      if (action === "SPLIT") {
+        if (hand.length === 2 &&
+            player.hands.length === 1 &&
+            hand[0].rank === hand[1].rank) {
+          const card1 = hand[0];
+          const card2 = hand[1];
+          const hand1 = [card1];
+          const hand2 = [card2];
+
+          // On donne une carte à chaque main
+          hand1.push(deck.pop());
+          hand2.push(deck.pop());
+
+          player.hands = [hand1, hand2];
+          player.activeHandIndex = 0;
+          tableState.message = player.name + " split sa main.";
+          broadcastState();
+
+          const hc = hostConnections.find(h => h.playerIndex === playerIndex);
+          if (hc) {
+            const canDoubleFirst = (hand1.length === 2);
+            sendToConn(hc.conn, {
+              type: "YOUR_TURN",
+              allowed: { hit: true, stand: true, double: canDoubleFirst, split: false }
+            });
+          }
+        }
+      }
+
+      updateHostInfo();
+    }
+
+    function startDealerTurn() {
+      tableState.phase = "dealerTurn";
+      tableState.dealerHideHoleCard = false;
+      tableState.message = "Tour du croupier…";
+      broadcastState();
+
+      setTimeout(dealerPlayStep, 700);
+    }
+
+    function dealerPlayStep() {
+      const value = handValue(tableState.dealerHand);
+      if (value < 17) {
+        dealCardToDealer(true);
+        setTimeout(dealerPlayStep, 800);
+      } else {
+        finishRound();
+      }
+    }
+
+    function finishRound() {
+      tableState.phase = "results";
+      const dealerVal = handValue(tableState.dealerHand);
+      const dealerBust = dealerVal > 21;
+
+      for (const p of tableState.players) {
+        let resultsText = [];
+        for (let hi = 0; hi < p.hands.length; hi++) {
+          const hand = p.hands[hi];
+          const val = handValue(hand);
+          let res = "";
+          if (val > 21) {
+            res = "Perdu";
+          } else if (isBlackjack(hand) && tableState.dealerHand.length === 2 && isBlackjack(tableState.dealerHand)) {
+            res = "Push";
+          } else if (isBlackjack(hand) && !(tableState.dealerHand.length === 2 && isBlackjack(tableState.dealerHand))) {
+            res = "Blackjack !";
+          } else if (dealerBust) {
+            res = "Gagné";
+          } else if (val > dealerVal) {
+            res = "Gagné";
+          } else if (val < dealerVal) {
+            res = "Perdu";
+          } else {
+            res = "Push";
+          }
+          resultsText.push("Main " + (p.hands.length > 1 ? (hi+1) + " : " : "") + res);
+        }
+        p.result = resultsText.join(" | ");
+      }
+
+      tableState.message = "Résultats de la manche.";
+      broadcastState();
+      updateHostInfo();
+      newRoundBtn.disabled = false;
+    }
+
+    // ---------- Client : gestion connexion / affichage ----------
+    function setupClientConnection(conn) {
+      conn.on("open", () => {
+        statusDiv.textContent = "Connecté au croupier.";
+        const pseudo = prompt("Ton pseudo ?") || "Joueur";
+        conn.send({ type: "HELLO", name: pseudo });
+      });
+
+      conn.on("data", data => {
+        if (!data || typeof data !== "object") return;
+
+        if (data.type === "WELCOME") {
+          myPlayerId = data.playerId;
+        }
+
+        if (data.type === "STATE") {
+          currentState = data.state;
+          renderClientState();
+        }
+
+        if (data.type === "YOUR_TURN") {
+          myTurnAllowedActions = data.allowed;
+          enableActionButtons(data.allowed);
+          actionsInfo.textContent = "À toi de jouer !";
+        }
+
+        if (data.type === "DEAL_TO_YOU") {
+          createFlyingCard("bottom", cardToString(data.card));
+        }
+
+        if (data.type === "DEAL_TO_DEALER") {
+          createFlyingCard("top", cardToString(data.card));
         }
       });
 
-      conn.on('close', () => {
+      conn.on("close", () => {
         statusDiv.textContent = "Connexion fermée.";
-        sendBtn.disabled = true;
       });
 
-      conn.on('error', (err) => {
+      conn.on("error", err => {
         console.error(err);
         statusDiv.textContent = "Erreur connexion : " + err.type;
-        sendBtn.disabled = true;
       });
     }
 
-    // Bouton "Lancer la carte"
-    sendBtn.addEventListener('click', () => {
-      if (!conn || conn.open === false) {
-        alert("Pas connecté à ton pote.");
-        return;
+    function sendActionToDealer(action) {
+      if (!serverConn) return;
+      serverConn.send({ type: "ACTION", action });
+      // On désactive les boutons le temps que le croupier réponde
+      disableActionButtons();
+    }
+
+    // ---------- UI : rendu table (host + client) ----------
+    function renderHostTable() {
+      // Host utilise tableState directement
+      renderDealerArea(tableState.dealerHand, tableState.dealerHideHoleCard, tableState.phase);
+      renderPlayers(tableState.players, tableState.currentPlayerIndex, null);
+      actionsInfo.textContent = tableState.message || "";
+      updateHostInfo();
+      disableActionButtons(); // le croupier ne joue pas les boutons joueur
+    }
+
+    function renderClientState() {
+      if (!currentState) return;
+      const st = currentState;
+
+      let dealerHandToShow = st.dealerHand;
+      renderDealerArea(dealerHandToShow, st.dealerHideHoleCard, st.phase);
+
+      const meIndex = st.players.findIndex(p => p.id === myPlayerId);
+      renderPlayers(st.players, st.currentPlayerIndex, meIndex);
+
+      actionsInfo.textContent = st.message || "";
+
+      if (st.phase !== "playerTurn" || st.currentPlayerIndex === null || meIndex !== st.currentPlayerIndex) {
+        disableActionButtons();
       }
-      // On joue l'anim d'envoi chez nous
-      playSendAnimation();
-      // Et on envoie la commande à l'autre
-      conn.send({ type: 'LAUNCH_CARD' });
-    });
-
-    // --- Animations ---
-
-    function resetAnimations() {
-      card.classList.remove('send');
-      card.classList.remove('receive');
-      // Force le reflow pour pouvoir relancer l'animation
-      void card.offsetWidth;
     }
 
-    function playSendAnimation() {
-      resetAnimations();
-      card.style.transform = 'translateX(0)'; // départ centre
-      card.classList.add('send'); // slide vers la droite
+    function renderDealerArea(dealerHand, hideHole, phase) {
+      dealerCardsDiv.innerHTML = "";
+      if (!dealerHand) return;
+
+      dealerHand.forEach((c, idx) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        if (c.rank === "?" || (idx === 1 && hideHole && phase !== "results")) {
+          div.classList.add("back");
+          div.textContent = "?";
+        } else {
+          div.textContent = cardToString(c);
+          if (isRedSuit(c.suit)) div.classList.add("red");
+        }
+        dealerCardsDiv.appendChild(div);
+      });
+
+      let valText = "";
+      if (!hideHole || phase === "results") {
+        const v = handValue(tableState.dealerHand);
+        valText = "Total : " + v;
+      } else {
+        valText = "Total : ?";
+      }
+      dealerValueDiv.textContent = valText;
     }
 
-    function playReceiveAnimation() {
-      resetAnimations();
-      card.style.transform = 'translateX(-140vw)'; // on la met hors écran à gauche
-      void card.offsetWidth; // reflow
-      card.classList.add('receive'); // elle glisse au centre
+    function renderPlayers(players, currentPlayerIndex, meIndex) {
+      playersContainer.innerHTML = "";
+      players.forEach((p, idx) => {
+        const box = document.createElement("div");
+        box.className = "player-box";
+
+        const header = document.createElement("div");
+        header.className = "player-header";
+
+        const left = document.createElement("div");
+        left.className = "player-name";
+        left.textContent = p.name + " (ID " + p.id + ")";
+
+        const right = document.createElement("div");
+
+        if (meIndex === idx) {
+          const you = document.createElement("span");
+          you.className = "badge you";
+          you.textContent = "TOI";
+          right.appendChild(you);
+        }
+
+        if (currentPlayerIndex === idx && p.status === "playing") {
+          const turn = document.createElement("span");
+          turn.className = "badge turn";
+          turn.textContent = "À JOUER";
+          right.appendChild(turn);
+        }
+
+        if (p.status === "bust") {
+          const b = document.createElement("span");
+          b.className = "badge bust";
+          b.textContent = "BUST";
+          right.appendChild(b);
+        }
+
+        if (p.status === "blackjack") {
+          const b = document.createElement("span");
+          b.className = "badge blackjack";
+          b.textContent = "BLACKJACK";
+          right.appendChild(b);
+        }
+
+        if (p.result) {
+          const r = document.createElement("span");
+          r.className = "badge";
+          r.textContent = p.result;
+          right.appendChild(r);
+        }
+
+        header.appendChild(left);
+        header.appendChild(right);
+        box.appendChild(header);
+
+        const handsDiv = document.createElement("div");
+        handsDiv.className = "hands";
+
+        p.hands.forEach((hand, hi) => {
+          const hBox = document.createElement("div");
+          hBox.className = "hand-box";
+          if (p.activeHandIndex === hi && p.status === "playing") {
+            hBox.classList.add("active");
+          }
+
+          const label = document.createElement("div");
+          label.className = "hand-label";
+          label.textContent = p.hands.length > 1 ? "Main " + (hi + 1) : "Main";
+
+          const v = handValue(hand);
+          const valSpan = document.createElement("span");
+          valSpan.className = "hand-value";
+          valSpan.textContent = "Total : " + v;
+
+          label.appendChild(valSpan);
+          hBox.appendChild(label);
+
+          const row = document.createElement("div");
+          row.className = "cards-row";
+
+          hand.forEach(c => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.textContent = cardToString(c);
+            if (isRedSuit(c.suit)) div.classList.add("red");
+            row.appendChild(div);
+          });
+
+          hBox.appendChild(row);
+          handsDiv.appendChild(hBox);
+        });
+
+        box.appendChild(handsDiv);
+        playersContainer.appendChild(box);
+      });
+    }
+
+    // ---------- UI : boutons joueur ----------
+    function enableActionButtons(allowed) {
+      hitBtn.disabled = !allowed.hit;
+      standBtn.disabled = !allowed.stand;
+      doubleBtn.disabled = !allowed.double;
+      splitBtn.disabled = !allowed.split;
+    }
+
+    function disableActionButtons() {
+      hitBtn.disabled = true;
+      standBtn.disabled = true;
+      doubleBtn.disabled = true;
+      splitBtn.disabled = true;
+    }
+
+    hitBtn.addEventListener("click", () => sendActionToDealer("HIT"));
+    standBtn.addEventListener("click", () => sendActionToDealer("STAND"));
+    doubleBtn.addEventListener("click", () => sendActionToDealer("DOUBLE"));
+    splitBtn.addEventListener("click", () => sendActionToDealer("SPLIT"));
+
+    // ---------- Anim cartes ----------
+    function createFlyingCard(direction, label) {
+      const div = document.createElement("div");
+      div.className = "flying-card " + (direction === "top" ? "fly-top" : "fly-bottom");
+      div.textContent = label || "";
+      document.body.appendChild(div);
+      setTimeout(() => {
+        div.remove();
+      }, 650);
     }
   </script>
-
 </body>
 </html>
