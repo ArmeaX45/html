@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Blackjack P2P – PeerJS</title>
+  <title>Blackjack P2P – Table IRL</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- PeerJS -->
@@ -13,265 +13,272 @@
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #145, #020b16);
+      background: radial-gradient(circle at top, #064, #02110f);
       color: #eee;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
     }
 
+    /* Barre de connexion */
     .topbar {
       background: rgba(0,0,0,0.7);
-      padding: 8px 10px;
-      font-size: 14px;
+      padding: 6px 8px;
+      font-size: 13px;
     }
-
     .topbar-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
       margin-top: 4px;
     }
-
-    .label {
-      font-size: 12px;
-      color: #aaa;
-    }
-
+    .label { font-size: 11px; color: #aaa; }
     input[type="text"] {
-      padding: 6px 8px;
+      padding: 4px 6px;
       border-radius: 4px;
       border: none;
       min-width: 0;
       flex: 1;
+      font-size: 12px;
     }
-
     button {
-      padding: 6px 10px;
+      padding: 5px 8px;
       border-radius: 4px;
       border: none;
       background: #1db954;
       color: #fff;
       font-weight: 600;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
       white-space: nowrap;
     }
-
-    button.secondary {
-      background: #444;
-    }
-
-    button:disabled {
-      opacity: 0.4;
-      cursor: default;
-    }
-
-    #status {
-      margin-top: 4px;
-      font-size: 12px;
-      color: #9f9;
-    }
-
-    .table {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      justify-content: center;
-      padding: 8px;
-      position: relative;
-    }
-
-    .dealer-area, .players-area {
-      border-radius: 12px;
-      background: rgba(0,0,0,0.35);
-      padding: 8px;
-      margin: 4px 0;
-    }
-
-    .dealer-area {
-      flex: 0 0 auto;
-    }
-
-    .players-area {
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    .area-title {
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #ccc;
-      margin-bottom: 4px;
-    }
-
-    .cards-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      align-items: center;
-    }
-
-    .card {
-      width: 38px;
-      height: 56px;
-      border-radius: 6px;
-      background: linear-gradient(145deg, #fff, #ddd);
-      color: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 700;
-      box-shadow: 0 0 6px rgba(0,0,0,0.5);
-      position: relative;
-    }
-
-    .card.red { color: #c00; }
-
-    .card.back {
-      background: linear-gradient(135deg, #145, #0a2340);
-      color: #eee;
-    }
-
-    .player-box {
-      margin-bottom: 6px;
-      padding: 6px;
-      border-radius: 8px;
-      background: rgba(0,0,0,0.4);
-    }
-
-    .player-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      margin-bottom: 4px;
-    }
-
-    .player-name {
-      font-weight: 600;
-    }
-
-    .badge {
-      padding: 2px 6px;
-      border-radius: 10px;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      background: #555;
-      color: #eee;
-    }
-
-    .badge.you {
-      background: #1db954;
-      color: #000;
-    }
-
-    .badge.turn {
-      background: #f5a623;
-      color: #000;
-    }
-
-    .badge.bust {
-      background: #c0392b;
-    }
-
-    .badge.blackjack {
-      background: #9b59b6;
-    }
-
-    .hands {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .hand-box {
-      padding: 4px;
-      border-radius: 6px;
-      border: 1px solid transparent;
-    }
-
-    .hand-box.active {
-      border-color: #f5a623;
-      background: rgba(0,0,0,0.4);
-    }
-
-    .hand-label {
-      font-size: 11px;
-      margin-bottom: 2px;
-      color: #ddd;
-    }
-
-    .hand-value {
-      font-size: 12px;
-      margin-left: 4px;
-      color: #fff;
-    }
-
-    .actions {
-      border-top: 1px solid rgba(255,255,255,0.1);
-      padding: 6px 8px;
-      background: rgba(0,0,0,0.7);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .actions-info {
-      font-size: 12px;
-      flex: 1;
-      min-width: 140px;
-    }
-
-    .flying-card {
-      position: fixed;
-      width: 40px;
-      height: 60px;
-      border-radius: 6px;
-      background: linear-gradient(135deg, #fff, #ddd);
-      box-shadow: 0 0 10px rgba(0,0,0,0.7);
-      top: 50%;
-      left: 50%;
-      margin: -30px 0 0 -20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      z-index: 999;
-      pointer-events: none;
-    }
-
-    @keyframes fly-to-bottom {
-      from { transform: translate(-50%, -50%); opacity: 1; }
-      to   { transform: translate(-50%, 170px); opacity: 0; }
-    }
-
-    @keyframes fly-to-top {
-      from { transform: translate(-50%, 50px); opacity: 1; }
-      to   { transform: translate(-50%, -160px); opacity: 0; }
-    }
-
-    .fly-bottom { animation: fly-to-bottom 0.6s ease-out forwards; }
-    .fly-top    { animation: fly-to-top 0.6s ease-out forwards; }
-
+    button.secondary { background: #444; }
+    button:disabled { opacity: 0.4; cursor: default; }
+    #status { margin-top: 4px; font-size: 11px; color: #9f9; }
     .host-controls {
       margin-top: 4px;
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      font-size: 12px;
       align-items: center;
+      font-size: 11px;
+    }
+    .small { font-size: 10px; color: #aaa; }
+
+    /* Tapis */
+    .table {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: stretch;
+      padding: 8px;
+      position: relative;
     }
 
-    .small {
+    .dealer-area, .player-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 4px;
+    }
+
+    .dealer-area { flex: 0 0 35%; }
+    .player-area { flex: 0 0 45%; }
+
+    .area-title {
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #ccd;
+      margin-bottom: 4px;
+      opacity: 0.8;
+    }
+
+    .cards-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    /* Cartes sur le tapis (grandes) */
+    .card {
+      width: 22vw;
+      height: 32vw;
+      max-width: 130px;
+      max-height: 190px;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #fff, #e5e5e5);
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(0,0,0,0.7);
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+      z-index: 2;
+    }
+    .card.red { color: #c00; }
+    .card.flip {
+      animation: flip-card 0.5s ease;
+      transform-origin: center;
+    }
+    @keyframes flip-card {
+      0%   { transform: rotateY(0deg); }
+      50%  { transform: rotateY(90deg); }
+      100% { transform: rotateY(0deg); }
+    }
+
+    /* Jetons derrière les cartes du joueur */
+    .chips-row {
+      position: relative;
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      margin-bottom: -14px;
+      z-index: 1;
+    }
+    .chip {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #fff;
+      box-shadow: 0 0 6px rgba(0,0,0,0.7);
+      animation: chip-appear 0.4s ease-out;
+    }
+    .chip.red    { background: radial-gradient(circle at 30% 30%, #ffdddd, #c00000); }
+    .chip.blue   { background: radial-gradient(circle at 30% 30%, #dde8ff, #0040c0); }
+    .chip.green  { background: radial-gradient(circle at 30% 30%, #ddffdd, #008c2a); }
+    .chip.black  { background: radial-gradient(circle at 30% 30%, #666, #000); }
+
+    @keyframes chip-appear {
+      0%   { transform: translateY(10px) scale(0.7); opacity: 0; }
+      100% { transform: translateY(0)    scale(1);   opacity: 1; }
+    }
+
+    /* Zone actions joueur */
+    .actions {
+      padding: 6px 8px 10px;
+      background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Contrôles de mise (jetons cliquables) */
+    .bet-controls {
+      width: 100%;
+      display: none; /* caché par défaut, affiché côté joueur */
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 4px;
       font-size: 11px;
-      color: #aaa;
+    }
+    .bet-label {
+      margin-right: 2px;
+      opacity: 0.9;
+    }
+    .bet-chip-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid #fff;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 4px rgba(0,0,0,0.7);
+    }
+    .bet-chip-btn.v1   { background: #0a5f2a; }
+    .bet-chip-btn.v5   { background: #b00020; }
+    .bet-chip-btn.v10  { background: #0040b0; }
+    .bet-chip-btn.v50  { background: #333333; }
+    .bet-chip-btn.v100 { background: #111111; }
+    .bet-clear {
+      padding: 3px 6px;
+      border-radius: 4px;
+      border: 1px solid #fff;
+      background: transparent;
+      color: #fff;
+      font-size: 10px;
+      cursor: pointer;
+    }
+
+    .actions-info {
+      width: 100%;
+      text-align: center;
+      font-size: 11px;
+      margin-bottom: 4px;
+      color: #cfc;
+    }
+    .action-btn {
+      flex: 1 1 22%;
+      min-width: 70px;
+      padding: 8px 4px;
+      font-size: 13px;
+    }
+
+    /* Grosse carte qui traverse l'écran */
+    .deal-card {
+      position: fixed;
+      width: 40vw;
+      height: 60vw;
+      max-width: 260px;
+      max-height: 390px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #fff, #ddd);
+      box-shadow: 0 0 18px rgba(0,0,0,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: #000;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .deal-host-to-player {
+      animation: host-to-player 0.9s ease-out forwards;
+    }
+    @keyframes host-to-player {
+      0%   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      100% { transform: translate(-50%, 160%) scale(1.05); opacity: 0; }
+    }
+    .deal-player-from-host {
+      animation: player-from-host 0.9s ease-out forwards;
+    }
+    @keyframes player-from-host {
+      0%   { transform: translate(-50%, -180%) scale(1.05); opacity: 0; }
+      100% { transform: translate(-50%, -30%) scale(1); opacity: 1; }
+    }
+    .deal-host-to-dealer {
+      animation: host-to-dealer 0.9s ease-out forwards;
+    }
+    @keyframes host-to-dealer {
+      0%   { transform: translate(-50%, 0%) scale(1); opacity: 1; }
+      100% { transform: translate(-50%, -180%) scale(1.05); opacity: 0; }
     }
   </style>
 </head>
@@ -297,23 +304,33 @@
 
   <div class="table">
     <div class="dealer-area">
-      <div class="area-title">Croupier</div>
+      <div class="area-title" id="dealerTitle">Croupier</div>
       <div id="dealerCards" class="cards-row"></div>
-      <div id="dealerValue" style="font-size:12px;margin-top:2px;color:#ddd;"></div>
     </div>
 
-    <div class="players-area">
-      <div class="area-title">Joueurs</div>
-      <div id="playersContainer"></div>
+    <div class="player-area">
+      <div class="area-title" id="playerTitle">Ton jeu</div>
+      <div id="playerCards" class="cards-row"></div>
     </div>
   </div>
 
   <div class="actions">
+    <!-- Contrôles de mise (côté joueur uniquement) -->
+    <div id="betControls" class="bet-controls">
+      <span class="bet-label">Mise :</span>
+      <div class="bet-chip-btn v1"   data-chip="1">1</div>
+      <div class="bet-chip-btn v5"   data-chip="5">5</div>
+      <div class="bet-chip-btn v10"  data-chip="10">10</div>
+      <div class="bet-chip-btn v50"  data-chip="50">50</div>
+      <div class="bet-chip-btn v100" data-chip="100">100</div>
+      <button id="betClearBtn" class="bet-clear">Effacer</button>
+    </div>
+
     <div class="actions-info" id="actionsInfo">En attente de connexion…</div>
-    <button id="hitBtn" disabled>Tirer</button>
-    <button id="standBtn" disabled>Rester</button>
-    <button id="doubleBtn" disabled>Doubler</button>
-    <button id="splitBtn" disabled>Split</button>
+    <button id="hitBtn"    class="action-btn" disabled>Tirer</button>
+    <button id="standBtn"  class="action-btn" disabled>Rester</button>
+    <button id="doubleBtn" class="action-btn" disabled>Doubler</button>
+    <button id="splitBtn"  class="action-btn" disabled>Split</button>
   </div>
 
   <script>
@@ -323,53 +340,52 @@
 
     function createDeck() {
       const deck = [];
-      for (const s of SUITS) {
-        for (const r of RANKS) {
-          deck.push({ rank: r, suit: s });
-        }
-      }
-      // Shuffle (Fisher-Yates)
+      for (const s of SUITS) for (const r of RANKS) deck.push({ rank: r, suit: s });
       for (let i = deck.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [deck[i], deck[j]] = [deck[j], deck[i]];
       }
       return deck;
     }
-
     function cardValue(card) {
       if (card.rank === "A") return 11;
       if (["K","Q","J"].includes(card.rank)) return 10;
       return parseInt(card.rank, 10);
     }
-
     function handValue(cards) {
-      let total = 0;
-      let aces = 0;
+      let total = 0, aces = 0;
       for (const c of cards) {
         total += cardValue(c);
         if (c.rank === "A") aces++;
       }
-      while (total > 21 && aces > 0) {
-        total -= 10;
-        aces--;
-      }
+      while (total > 21 && aces > 0) { total -= 10; aces--; }
       return total;
     }
-
     function isBlackjack(cards) {
       return cards.length === 2 && handValue(cards) === 21;
     }
+    function cloneCard(c) { return { rank: c.rank, suit: c.suit }; }
+    function cardToString(c) { return c.rank + c.suit; }
+    function isRedSuit(suit) { return suit === "♥" || suit === "♦"; }
 
-    function cloneCard(c) {
-      return { rank: c.rank, suit: c.suit };
+    // Décomposition des jetons
+    function chipBreakdown(amount) {
+      const denoms = [100, 50, 10, 5, 1];
+      const chips = [];
+      let remaining = amount;
+      for (const d of denoms) {
+        while (remaining >= d) {
+          chips.push(d);
+          remaining -= d;
+        }
+      }
+      return chips;
     }
-
-    function cardToString(c) {
-      return c.rank + c.suit;
-    }
-
-    function isRedSuit(suit) {
-      return suit === "♥" || suit === "♦";
+    function chipClassForValue(v) {
+      if (v >= 100) return "black";
+      if (v >= 50)  return "blue";
+      if (v >= 10)  return "red";
+      return "green";
     }
 
     // ---------- Etat global ----------
@@ -377,23 +393,24 @@
     let myPeerId = null;
 
     let isHost = false;
-    let serverConn = null; // pour le joueur -> croupier
-    let hostConnections = []; // pour le croupier : {conn, peerId, playerIndex}
-
+    let serverConn = null;
+    let hostConnections = [];
     let myPlayerId = null;
     let currentState = null;
     let myTurnAllowedActions = null;
+    let pendingPlayerFlips = 0;
 
-    // Etat du host (table)
     let deck = [];
     let tableState = {
-      phase: "waiting", // waiting | dealing | playerTurn | dealerTurn | results
+      phase: "waiting",
       dealerHand: [],
-      dealerHideHoleCard: true,
-      players: [], // {id, name, peerId, hands: [ [cards] , [cards]? ], activeHandIndex, status, result}
+      players: [],
       currentPlayerIndex: null,
       message: ""
     };
+
+    // local côté joueur : brouillon de mise
+    let myBetDraft = null;
 
     // ---------- DOM ----------
     const myIdSpan = document.getElementById("myId");
@@ -401,13 +418,14 @@
     const hostBtn = document.getElementById("hostBtn");
     const connectBtn = document.getElementById("connectBtn");
     const hostIdInput = document.getElementById("hostIdInput");
-    const hostInfoSpan = document.getElementById("hostInfo");
     const startRoundBtn = document.getElementById("startRoundBtn");
     const newRoundBtn = document.getElementById("newRoundBtn");
+    const hostInfoSpan = document.getElementById("hostInfo");
 
     const dealerCardsDiv = document.getElementById("dealerCards");
-    const dealerValueDiv = document.getElementById("dealerValue");
-    const playersContainer = document.getElementById("playersContainer");
+    const playerCardsDiv = document.getElementById("playerCards");
+    const dealerTitle = document.getElementById("dealerTitle");
+    const playerTitle = document.getElementById("playerTitle");
 
     const actionsInfo = document.getElementById("actionsInfo");
     const hitBtn = document.getElementById("hitBtn");
@@ -415,97 +433,109 @@
     const doubleBtn = document.getElementById("doubleBtn");
     const splitBtn = document.getElementById("splitBtn");
 
+    const betControls = document.getElementById("betControls");
+    const betClearBtn = document.getElementById("betClearBtn");
+
     // ---------- PeerJS init ----------
     peer = new Peer();
-
     peer.on("open", id => {
       myPeerId = id;
       myIdSpan.textContent = id;
-      statusDiv.textContent = "Choisis : croupier ou joueur.";
+      statusDiv.textContent = "Choisis ton rôle : croupier ou joueur.";
     });
-
     peer.on("error", err => {
       console.error(err);
       statusDiv.textContent = "Erreur PeerJS : " + err.type;
     });
-
     peer.on("connection", conn => {
-      if (isHost) {
-        // Un joueur se connecte au croupier
-        handleNewPlayerConnection(conn);
-      } else {
-        // Au cas où le croupier initie la connexion (rare mais on gère)
-        if (!serverConn) {
-          serverConn = conn;
-          setupClientConnection(conn);
-        }
-      }
+      if (isHost) handleNewPlayerConnection(conn);
+      else { conn.close(); }
     });
 
-    // ---------- Rôle : Host / Joueur ----------
+    // ---------- Choix rôle ----------
     hostBtn.addEventListener("click", () => {
       isHost = true;
       statusDiv.textContent = "Mode croupier : donne ton ID aux joueurs.";
       hostBtn.disabled = true;
-      hostInfoSpan.textContent = "En attente de joueurs…";
+      connectBtn.disabled = true;
+      hostIdInput.disabled = true;
+      dealerTitle.textContent = "Tes cartes (croupier)";
+      playerTitle.textContent = "Joueurs (jetons / état)";
+      actionsInfo.textContent = "En attente de joueurs…";
+      betControls.style.display = "none"; // croupier ne mise pas avec ces boutons
+      updateHostInfo();
     });
 
     connectBtn.addEventListener("click", () => {
       const hostId = hostIdInput.value.trim();
-      if (!hostId) {
-        alert("Entre l'ID du croupier.");
-        return;
-      }
+      if (!hostId) { alert("Entre l'ID du croupier."); return; }
       isHost = false;
       statusDiv.textContent = "Connexion au croupier…";
+      connectBtn.disabled = true;
+      hostBtn.disabled = true;
+      hostIdInput.disabled = true;
+
       serverConn = peer.connect(hostId);
       setupClientConnection(serverConn);
     });
 
-    // ---------- Croupier : gestion des joueurs ----------
+    // ---------- Croupier : gestion joueurs ----------
     function handleNewPlayerConnection(conn) {
       const playerIndex = tableState.players.length;
       const playerObj = {
         id: playerIndex + 1,
         name: "Joueur " + (playerIndex + 1),
         peerId: conn.peer,
-        hands: [[]],
+        stack: 0,
+        baseBet: 0,
+        hands: [{ cards: [], bet: 0 }],
         activeHandIndex: 0,
-        status: "waiting", // waiting | playing | done | bust | blackjack
+        status: "waiting",
         result: null
       };
       tableState.players.push(playerObj);
-      hostConnections.push({ conn, peerId: conn.peer, playerIndex });
+      hostConnections.push({ conn, playerIndex });
 
-      conn.on("data", data => {
-        handleDataFromPlayer(conn, playerIndex, data);
-      });
+      conn.on("data", data => handleDataFromPlayer(playerIndex, data));
+      conn.on("close", () => { playerObj.status = "disconnected"; renderHostTable(); updateHostInfo(); });
+      conn.on("error", err => console.error("Erreur joueur :", err));
 
-      conn.on("close", () => {
-        playerObj.status = "disconnected";
-        broadcastState();
-      });
-
-      conn.on("error", err => {
-        console.error("Erreur connexion joueur :", err);
-      });
-
-      // Quand la connexion est ouverte, on attend son HELLO
-      conn.on("open", () => {
-        console.log("Joueur connecté (peerId=" + conn.peer + ")");
-        sendToConn(conn, { type: "WELCOME", playerId: playerObj.id });
-        updateHostInfo();
-        broadcastState();
-      });
+      sendToConn(conn, { type: "WELCOME", playerId: playerObj.id });
+      updateHostInfo();
+      renderHostTable();
     }
 
-    function handleDataFromPlayer(conn, playerIndex, data) {
+    function handleDataFromPlayer(playerIndex, data) {
       const player = tableState.players[playerIndex];
       if (!data || typeof data !== "object") return;
 
       if (data.type === "HELLO") {
         if (data.name) player.name = data.name;
-        broadcastState();
+        if (typeof data.stack === "number" && data.stack > 0) {
+          player.stack = Math.floor(data.stack);
+        } else if (!player.stack) {
+          player.stack = 100;
+        }
+        if (typeof data.baseBet === "number" && data.baseBet > 0) {
+          player.baseBet = Math.floor(Math.min(data.baseBet, player.stack));
+        } else if (!player.baseBet) {
+          player.baseBet = Math.min(10, player.stack);
+        }
+        updateHostInfo();
+        renderHostTable();
+      }
+
+      if (data.type === "SET_BET") {
+        let b = parseInt(data.amount, 10);
+        if (isNaN(b) || b <= 0) b = 1;
+        b = Math.min(b, player.stack > 0 ? player.stack : player.baseBet || 10);
+        player.baseBet = b;
+        renderHostTable();
+        const hc = hostConnections.find(h => h.playerIndex === playerIndex);
+        if (hc) {
+          const st = exportStateForPlayer(playerIndex);
+          sendToConn(hc.conn, { type: "STATE", state: st });
+        }
       }
 
       if (data.type === "ACTION") {
@@ -514,243 +544,202 @@
     }
 
     function sendToConn(conn, payload) {
-      try {
-        conn.send(payload);
-      } catch (e) {
-        console.error("Erreur sendToConn :", e);
-      }
+      try { conn.send(payload); } catch(e) { console.error("send error", e); }
     }
 
-    function broadcast(payload) {
+    function broadcastStateAll() {
       for (const hc of hostConnections) {
-        sendToConn(hc.conn, payload);
+        const st = exportStateForPlayer(hc.playerIndex);
+        sendToConn(hc.conn, { type: "STATE", state: st });
       }
+      renderHostTable();
     }
 
-    function broadcastState() {
-      const exported = exportStateForClients();
-      broadcast({ type: "STATE", state: exported });
-      renderHostTable(); // le croupier se sert de l'état complet
-    }
-
-    function exportStateForClients() {
-      // On ne renvoie pas tout (ex : carte cachée du croupier)
-      const playersLight = tableState.players.map(p => ({
-        id: p.id,
-        name: p.name,
-        peerId: p.peerId,
-        hands: p.hands.map(hand => hand.map(cloneCard)),
-        activeHandIndex: p.activeHandIndex,
-        status: p.status,
-        result: p.result
-      }));
-
-      const dealerShownHand = tableState.dealerHand.map((c, idx) => {
-        if (idx === 1 && tableState.dealerHideHoleCard && tableState.phase !== "results") {
-          return { rank: "?", suit: "?" };
-        }
-        return cloneCard(c);
-      });
-
+    function exportStateForPlayer(playerIndex) {
+      const p = tableState.players[playerIndex];
       return {
         phase: tableState.phase,
-        dealerHand: dealerShownHand,
-        dealerRealHand: tableState.dealerHideHoleCard ? null : tableState.dealerHand.map(cloneCard),
-        dealerHideHoleCard: tableState.dealerHideHoleCard,
-        players: playersLight,
-        currentPlayerIndex: tableState.currentPlayerIndex,
+        myHands: p.hands.map(h => ({
+          cards: h.cards.map(cloneCard),
+          bet: h.bet
+        })),
+        myStack: p.stack,
+        myBaseBet: p.baseBet,
+        myActiveHandIndex: p.activeHandIndex,
+        myStatus: p.status,
+        myResult: p.result,
+        isMyTurn: (tableState.phase === "playerTurn" &&
+                   tableState.currentPlayerIndex === playerIndex),
         message: tableState.message
       };
     }
 
     function updateHostInfo() {
       hostInfoSpan.textContent =
-        "Joueurs connectés : " + tableState.players.length +
+        "Joueurs : " + tableState.players.length +
         " | Phase : " + tableState.phase;
-      startRoundBtn.disabled = !(isHost && tableState.players.length > 0 && tableState.phase === "waiting");
+      startRoundBtn.disabled = !(isHost &&
+        tableState.players.length > 0 &&
+        tableState.phase === "waiting");
     }
 
-    // ---------- Host : démarrer / gérer une manche ----------
-    startRoundBtn.addEventListener("click", () => {
-      if (!isHost) return;
-      startNewRoundWithSamePlayers();
-    });
+    // ---------- Démarrer une manche ----------
+    startRoundBtn.addEventListener("click", () => { if (isHost) startNewRound(); });
+    newRoundBtn.addEventListener("click", () => { if (isHost) startNewRound(); });
 
-    newRoundBtn.addEventListener("click", () => {
-      if (!isHost) return;
-      startNewRoundWithSamePlayers();
-    });
-
-    function startNewRoundWithSamePlayers() {
+    function startNewRound() {
       deck = createDeck();
       tableState.phase = "dealing";
       tableState.dealerHand = [];
-      tableState.dealerHideHoleCard = true;
       tableState.currentPlayerIndex = null;
       tableState.message = "Distribution des cartes…";
 
       for (const p of tableState.players) {
-        p.hands = [[]];
+        if (p.stack <= 0) {
+          p.status = "out";
+          p.hands = [];
+          p.result = "Plus de jetons";
+          continue;
+        }
+        const desiredBet = p.baseBet || 10;
+        const bet = Math.max(1, Math.min(desiredBet, p.stack));
+        p.baseBet = bet;
+        p.stack -= bet;
+        p.hands = [{ cards: [], bet }];
         p.activeHandIndex = 0;
         p.status = "playing";
         p.result = null;
       }
 
+      newRoundBtn.disabled = true;
       updateHostInfo();
-      broadcastState();
-
+      broadcastStateAll();
       dealInitialCardsSequence();
     }
 
+    // Distribution FR : 1 carte à chaque joueur, 1 au croupier, puis 2e carte aux joueurs
     function dealInitialCardsSequence() {
       const nPlayers = tableState.players.length;
       const order = [];
 
-      // 1er tour : tous les joueurs puis croupier
       for (let i = 0; i < nPlayers; i++) order.push({ type: "player", index: i });
       order.push({ type: "dealer" });
-      // 2e tour
       for (let i = 0; i < nPlayers; i++) order.push({ type: "player", index: i });
-      order.push({ type: "dealer" });
 
       let idx = 0;
-
       function step() {
         if (idx >= order.length) {
-          // Fin de la distribution initiale
           checkInitialBlackjacks();
           startNextPlayerTurn();
           return;
         }
         const target = order[idx++];
-        if (target.type === "player") {
-          dealCardToPlayer(target.index, true);
-        } else {
-          dealCardToDealer(true);
-        }
-        setTimeout(step, 600);
+        if (target.type === "player") dealCardToPlayer(target.index, true);
+        else dealCardToDealer(true);
+        setTimeout(step, 750);
       }
       step();
     }
 
     function dealCardToPlayer(playerIndex, animate) {
       const player = tableState.players[playerIndex];
+      if (!player || player.status !== "playing" || !player.hands.length) return;
+
+      const handObj = player.hands[player.activeHandIndex];
+      const hand = handObj.cards;
       const card = deck.pop();
-      const activeHand = player.hands[player.activeHandIndex];
-      activeHand.push(card);
+      hand.push(card);
+
+      broadcastStateAll();
 
       if (animate) {
-        // Anim pour le croupier (vers le bas)
-        createFlyingCard("bottom", cardToString(card));
-        // Anim côté joueur, via message
+        animateDealToPlayerHost(cardToString(card));
         const hc = hostConnections.find(h => h.playerIndex === playerIndex);
-        if (hc) {
-          sendToConn(hc.conn, { type: "DEAL_TO_YOU", card: cloneCard(card) });
-        }
+        if (hc) sendToConn(hc.conn, { type: "DEAL_TO_YOU", card: cloneCard(card) });
       }
 
-      // Maj statut blackjack après 2 cartes
-      if (activeHand.length === 2 && isBlackjack(activeHand)) {
+      if (hand.length === 2 && isBlackjack(hand)) {
         player.status = "blackjack";
+        broadcastStateAll();
       }
-
-      broadcastState();
     }
 
     function dealCardToDealer(animate) {
       const card = deck.pop();
       tableState.dealerHand.push(card);
-
+      renderHostTable();
       if (animate) {
-        // Anim vers le haut sur le croupier
-        createFlyingCard("top", cardToString(card));
-        // Anim sur tous les joueurs (carte vers le haut)
-        broadcast({ type: "DEAL_TO_DEALER", card: cloneCard(card) });
+        animateDealToDealerHost(cardToString(card));
+        setTimeout(flipLastDealerCard, 350);
       }
-
-      broadcastState();
     }
 
     function checkInitialBlackjacks() {
-      let allBlackjackOrBust = true;
       for (const p of tableState.players) {
-        const hand = p.hands[0];
-        if (isBlackjack(hand)) {
-          p.status = "blackjack";
-        } else {
-          allBlackjackOrBust = false;
-        }
+        if (!p.hands.length) continue;
+        const h = p.hands[0].cards;
+        if (isBlackjack(h)) p.status = "blackjack";
       }
-      // On laisse quand même la partie continuer normalement
+      broadcastStateAll();
     }
 
     function startNextPlayerTurn() {
       tableState.phase = "playerTurn";
-
       let idx = tableState.currentPlayerIndex == null ? 0 : tableState.currentPlayerIndex + 1;
       const n = tableState.players.length;
       let found = false;
+
       for (; idx < n; idx++) {
         const p = tableState.players[idx];
-        if (p.status === "playing") {
-          found = true;
-          break;
-        }
+        if (p.status === "playing") { found = true; break; }
       }
-
-      if (!found) {
-        // plus de joueurs -> tour du croupier
-        startDealerTurn();
-        return;
-      }
+      if (!found) { startDealerTurn(); return; }
 
       tableState.currentPlayerIndex = idx;
       tableState.message = "Tour de " + tableState.players[idx].name;
-      broadcastState();
+      broadcastStateAll();
 
       const player = tableState.players[idx];
       const hc = hostConnections.find(h => h.playerIndex === idx);
       if (hc) {
-        const hand = player.hands[player.activeHandIndex];
-        const canDouble = (hand.length === 2);
-        const canSplit = (hand.length === 2 &&
-                          player.hands.length === 1 &&
-                          hand[0].rank === hand[1].rank);
+        const handObj = player.hands[player.activeHandIndex];
+        const hand = handObj.cards;
+        const canDouble = (hand.length === 2 && player.stack >= handObj.bet);
+        const canSplit =
+          (hand.length === 2 &&
+           player.hands.length === 1 &&
+           hand[0].rank === hand[1].rank &&
+           player.stack >= player.baseBet);
 
         sendToConn(hc.conn, {
           type: "YOUR_TURN",
-          allowed: {
-            hit: true,
-            stand: true,
-            double: canDouble,
-            split: canSplit
-          }
+          allowed: { hit: true, stand: true, double: canDouble, split: canSplit }
         });
       }
+      updateHostInfo();
     }
 
     function handlePlayerAction(playerIndex, action) {
       const player = tableState.players[playerIndex];
       if (tableState.phase !== "playerTurn") return;
       if (tableState.currentPlayerIndex !== playerIndex) return;
-      if (player.status !== "playing") return;
+      if (player.status !== "playing" || !player.hands.length) return;
 
-      const hand = player.hands[player.activeHandIndex];
+      const handObj = player.hands[player.activeHandIndex];
+      const hand = handObj.cards;
 
       if (action === "HIT") {
         dealCardToPlayer(playerIndex, true);
         const value = handValue(hand);
         if (value > 21) {
-          // Bust de cette main
           if (player.hands.length > 1 && player.activeHandIndex === 0) {
-            // on passe à la 2e main
             player.activeHandIndex = 1;
-            tableState.message = player.name + " : 1ère main bust, 2e main";
-            broadcastState();
+            tableState.message = player.name + " : 1ère main bust, 2e main.";
+            broadcastStateAll();
             const hc = hostConnections.find(h => h.playerIndex === playerIndex);
             if (hc) {
-              const hand2 = player.hands[player.activeHandIndex];
-              const canDouble2 = (hand2.length === 2);
+              const h2 = player.hands[player.activeHandIndex];
+              const canDouble2 = (h2.cards.length === 2 && player.stack >= h2.bet);
               sendToConn(hc.conn, {
                 type: "YOUR_TURN",
                 allowed: { hit: true, stand: true, double: canDouble2, split: false }
@@ -758,18 +747,15 @@
             }
           } else {
             player.status = "bust";
-            broadcastState();
+            broadcastStateAll();
             startNextPlayerTurn();
           }
         } else {
-          // Retour de main au même joueur
-          broadcastState();
           const hc = hostConnections.find(h => h.playerIndex === playerIndex);
           if (hc) {
-            const canDouble = false; // plus après avoir tiré
             sendToConn(hc.conn, {
               type: "YOUR_TURN",
-              allowed: { hit: true, stand: true, double: canDouble, split: false }
+              allowed: { hit: true, stand: true, double: false, split: false }
             });
           }
         }
@@ -777,14 +763,13 @@
 
       if (action === "STAND") {
         if (player.hands.length > 1 && player.activeHandIndex === 0) {
-          // On passe à la deuxième main
           player.activeHandIndex = 1;
           tableState.message = player.name + " joue sa 2e main.";
-          broadcastState();
+          broadcastStateAll();
           const hc = hostConnections.find(h => h.playerIndex === playerIndex);
           if (hc) {
-            const hand2 = player.hands[player.activeHandIndex];
-            const canDouble2 = (hand2.length === 2);
+            const h2 = player.hands[player.activeHandIndex];
+            const canDouble2 = (h2.cards.length === 2 && player.stack >= h2.bet);
             sendToConn(hc.conn, {
               type: "YOUR_TURN",
               allowed: { hit: true, stand: true, double: canDouble2, split: false }
@@ -792,25 +777,26 @@
           }
         } else {
           player.status = "done";
-          broadcastState();
+          broadcastStateAll();
           startNextPlayerTurn();
         }
       }
 
       if (action === "DOUBLE") {
-        if (hand.length === 2) {
+        if (hand.length === 2 && player.stack >= handObj.bet) {
+          player.stack -= handObj.bet;
+          handObj.bet *= 2;
           dealCardToPlayer(playerIndex, true);
-          // On finit la main (stand forcé)
           const value = handValue(hand);
           if (value > 21) {
             if (player.hands.length > 1 && player.activeHandIndex === 0) {
               player.activeHandIndex = 1;
               tableState.message = player.name + " : 1ère main bust, 2e main.";
-              broadcastState();
+              broadcastStateAll();
               const hc = hostConnections.find(h => h.playerIndex === playerIndex);
               if (hc) {
-                const hand2 = player.hands[player.activeHandIndex];
-                const canDouble2 = (hand2.length === 2);
+                const h2 = player.hands[player.activeHandIndex];
+                const canDouble2 = (h2.cards.length === 2 && player.stack >= h2.bet);
                 sendToConn(hc.conn, {
                   type: "YOUR_TURN",
                   allowed: { hit: true, stand: true, double: canDouble2, split: false }
@@ -818,28 +804,13 @@
               }
             } else {
               player.status = "bust";
-              broadcastState();
+              broadcastStateAll();
               startNextPlayerTurn();
             }
           } else {
-            if (player.hands.length > 1 && player.activeHandIndex === 0) {
-              player.activeHandIndex = 1;
-              tableState.message = player.name + " joue sa 2e main.";
-              broadcastState();
-              const hc = hostConnections.find(h => h.playerIndex === playerIndex);
-              if (hc) {
-                const hand2 = player.hands[player.activeHandIndex];
-                const canDouble2 = (hand2.length === 2);
-                sendToConn(hc.conn, {
-                  type: "YOUR_TURN",
-                  allowed: { hit: true, stand: true, double: canDouble2, split: false }
-                });
-              }
-            } else {
-              player.status = "done";
-              broadcastState();
-              startNextPlayerTurn();
-            }
+            player.status = "done";
+            broadcastStateAll();
+            startNextPlayerTurn();
           }
         }
       }
@@ -847,24 +818,27 @@
       if (action === "SPLIT") {
         if (hand.length === 2 &&
             player.hands.length === 1 &&
-            hand[0].rank === hand[1].rank) {
+            hand[0].rank === hand[1].rank &&
+            player.stack >= player.baseBet) {
+
+          player.stack -= player.baseBet;
           const card1 = hand[0];
           const card2 = hand[1];
-          const hand1 = [card1];
-          const hand2 = [card2];
 
-          // On donne une carte à chaque main
-          hand1.push(deck.pop());
-          hand2.push(deck.pop());
+          const hand1 = { cards: [card1], bet: player.baseBet };
+          const hand2 = { cards: [card2], bet: player.baseBet };
+
+          hand1.cards.push(deck.pop());
+          hand2.cards.push(deck.pop());
 
           player.hands = [hand1, hand2];
           player.activeHandIndex = 0;
-          tableState.message = player.name + " split sa main.";
-          broadcastState();
+          tableState.message = player.name + " split.";
+          broadcastStateAll();
 
           const hc = hostConnections.find(h => h.playerIndex === playerIndex);
           if (hc) {
-            const canDoubleFirst = (hand1.length === 2);
+            const canDoubleFirst = (hand1.cards.length === 2 && player.stack >= hand1.bet);
             sendToConn(hc.conn, {
               type: "YOUR_TURN",
               allowed: { hit: true, stand: true, double: canDoubleFirst, split: false }
@@ -872,24 +846,21 @@
           }
         }
       }
-
       updateHostInfo();
     }
 
     function startDealerTurn() {
       tableState.phase = "dealerTurn";
-      tableState.dealerHideHoleCard = false;
-      tableState.message = "Tour du croupier…";
-      broadcastState();
-
-      setTimeout(dealerPlayStep, 700);
+      tableState.message = "Le croupier joue…";
+      broadcastStateAll();
+      setTimeout(dealerPlayStep, 900);
     }
 
     function dealerPlayStep() {
       const value = handValue(tableState.dealerHand);
       if (value < 17) {
         dealCardToDealer(true);
-        setTimeout(dealerPlayStep, 800);
+        setTimeout(dealerPlayStep, 950);
       } else {
         finishRound();
       }
@@ -901,269 +872,275 @@
       const dealerBust = dealerVal > 21;
 
       for (const p of tableState.players) {
-        let resultsText = [];
+        if (!p.hands.length) continue;
+        const texts = [];
+
         for (let hi = 0; hi < p.hands.length; hi++) {
-          const hand = p.hands[hi];
+          const handObj = p.hands[hi];
+          const hand = handObj.cards;
+          const bet = handObj.bet || p.baseBet || 0;
           const val = handValue(hand);
           let res = "";
+          let pay = 0;
+
           if (val > 21) {
             res = "Perdu";
-          } else if (isBlackjack(hand) && tableState.dealerHand.length === 2 && isBlackjack(tableState.dealerHand)) {
+            pay = 0;
+          } else if (isBlackjack(hand) &&
+                     tableState.dealerHand.length === 2 &&
+                     isBlackjack(tableState.dealerHand)) {
             res = "Push";
-          } else if (isBlackjack(hand) && !(tableState.dealerHand.length === 2 && isBlackjack(tableState.dealerHand))) {
+            pay = bet;
+          } else if (isBlackjack(hand) &&
+                     !(tableState.dealerHand.length === 2 &&
+                       isBlackjack(tableState.dealerHand))) {
             res = "Blackjack !";
+            pay = 2 * bet;
           } else if (dealerBust) {
             res = "Gagné";
+            pay = 2 * bet;
           } else if (val > dealerVal) {
             res = "Gagné";
+            pay = 2 * bet;
           } else if (val < dealerVal) {
             res = "Perdu";
+            pay = 0;
           } else {
             res = "Push";
+            pay = bet;
           }
-          resultsText.push("Main " + (p.hands.length > 1 ? (hi+1) + " : " : "") + res);
+
+          p.stack += pay;
+          texts.push((p.hands.length > 1 ? "Main " + (hi+1) + " : " : "") + res);
         }
-        p.result = resultsText.join(" | ");
+
+        p.result = texts.join(" | ");
       }
 
       tableState.message = "Résultats de la manche.";
-      broadcastState();
+      broadcastStateAll();
       updateHostInfo();
       newRoundBtn.disabled = false;
     }
 
-    // ---------- Client : gestion connexion / affichage ----------
+    // ---------- Client ----------
     function setupClientConnection(conn) {
       conn.on("open", () => {
         statusDiv.textContent = "Connecté au croupier.";
         const pseudo = prompt("Ton pseudo ?") || "Joueur";
-        conn.send({ type: "HELLO", name: pseudo });
+        let stack = parseInt(prompt("Combien de jetons veux-tu ? (ex : 100)"), 10);
+        if (isNaN(stack) || stack <= 0) stack = 100;
+        let baseBet = parseInt(prompt("Mise de base par manche ? (max : " + stack + ")", "10"), 10);
+        if (isNaN(baseBet) || baseBet <= 0) baseBet = 10;
+        if (baseBet > stack) baseBet = stack;
+        myBetDraft = baseBet;
+        conn.send({ type: "HELLO", name: pseudo, stack, baseBet });
+
+        // côté joueur : afficher les contrôles de mise
+        betControls.style.display = "flex";
       });
 
       conn.on("data", data => {
         if (!data || typeof data !== "object") return;
-
-        if (data.type === "WELCOME") {
-          myPlayerId = data.playerId;
-        }
-
-        if (data.type === "STATE") {
-          currentState = data.state;
-          renderClientState();
-        }
-
+        if (data.type === "WELCOME") myPlayerId = data.playerId;
+        if (data.type === "STATE") { currentState = data.state; syncBetDraftFromState(); renderClientState(); }
         if (data.type === "YOUR_TURN") {
           myTurnAllowedActions = data.allowed;
           enableActionButtons(data.allowed);
           actionsInfo.textContent = "À toi de jouer !";
         }
-
         if (data.type === "DEAL_TO_YOU") {
-          createFlyingCard("bottom", cardToString(data.card));
-        }
-
-        if (data.type === "DEAL_TO_DEALER") {
-          createFlyingCard("top", cardToString(data.card));
+          pendingPlayerFlips++;
+          animateDealToPlayerClient(cardToString(data.card));
+          if (currentState) renderClientState();
         }
       });
 
-      conn.on("close", () => {
-        statusDiv.textContent = "Connexion fermée.";
-      });
+      conn.on("close", () => { statusDiv.textContent = "Connexion fermée."; });
+      conn.on("error", err => { console.error(err); statusDiv.textContent = "Erreur : " + err.type; });
+    }
 
-      conn.on("error", err => {
-        console.error(err);
-        statusDiv.textContent = "Erreur connexion : " + err.type;
-      });
+    function syncBetDraftFromState() {
+      if (!currentState) return;
+      if (myBetDraft == null || currentState.phase === "waiting") {
+        myBetDraft = currentState.myBaseBet || myBetDraft || 10;
+      }
     }
 
     function sendActionToDealer(action) {
       if (!serverConn) return;
       serverConn.send({ type: "ACTION", action });
-      // On désactive les boutons le temps que le croupier réponde
       disableActionButtons();
     }
 
-    // ---------- UI : rendu table (host + client) ----------
+    // ---------- Rendu croupier ----------
     function renderHostTable() {
-      // Host utilise tableState directement
-      renderDealerArea(tableState.dealerHand, tableState.dealerHideHoleCard, tableState.phase);
-      renderPlayers(tableState.players, tableState.currentPlayerIndex, null);
+      dealerCardsDiv.innerHTML = "";
+      tableState.dealerHand.forEach(c => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.textContent = cardToString(c);
+        if (isRedSuit(c.suit)) div.classList.add("red");
+        dealerCardsDiv.appendChild(div);
+      });
+
+      playerCardsDiv.innerHTML = "";
+      tableState.players.forEach((p, idx) => {
+        const div = document.createElement("div");
+        div.style.fontSize = "11px";
+        div.style.opacity = 0.9;
+        let txt = p.name + " – " + p.stack + " jetons";
+        if (p.baseBet) txt += " – mise " + p.baseBet;
+        txt += " – " + p.status;
+        if (tableState.phase === "results" && p.result) txt += " (" + p.result + ")";
+        if (tableState.phase === "playerTurn" && tableState.currentPlayerIndex === idx && p.status === "playing") {
+          txt += "  ← à jouer";
+        }
+        div.textContent = txt;
+        playerCardsDiv.appendChild(div);
+      });
+
       actionsInfo.textContent = tableState.message || "";
+      disableActionButtons();
       updateHostInfo();
-      disableActionButtons(); // le croupier ne joue pas les boutons joueur
     }
 
+    function flipLastDealerCard() {
+      const cards = dealerCardsDiv.querySelectorAll(".card");
+      if (cards.length) cards[cards.length - 1].classList.add("flip");
+    }
+
+    // ---------- Rendu joueur ----------
     function renderClientState() {
       if (!currentState) return;
       const st = currentState;
 
-      let dealerHandToShow = st.dealerHand;
-      renderDealerArea(dealerHandToShow, st.dealerHideHoleCard, st.phase);
-
-      const meIndex = st.players.findIndex(p => p.id === myPlayerId);
-      renderPlayers(st.players, st.currentPlayerIndex, meIndex);
-
-      actionsInfo.textContent = st.message || "";
-
-      if (st.phase !== "playerTurn" || st.currentPlayerIndex === null || meIndex !== st.currentPlayerIndex) {
-        disableActionButtons();
-      }
-    }
-
-    function renderDealerArea(dealerHand, hideHole, phase) {
       dealerCardsDiv.innerHTML = "";
-      if (!dealerHand) return;
 
-      dealerHand.forEach((c, idx) => {
-        const div = document.createElement("div");
-        div.className = "card";
-        if (c.rank === "?" || (idx === 1 && hideHole && phase !== "results")) {
-          div.classList.add("back");
-          div.textContent = "?";
-        } else {
+      playerCardsDiv.innerHTML = "";
+
+      const hands = st.myHands || [];
+      const inRound = (st.phase === "dealing" || st.phase === "playerTurn" || st.phase === "dealerTurn" || st.phase === "results");
+      let betDisplayAmount = 0;
+      let totalBetHands = 0;
+
+      if (hands.length) {
+        totalBetHands = hands.reduce((sum, h) => sum + (h.bet || 0), 0);
+      }
+
+      if (st.phase === "waiting") {
+        betDisplayAmount = st.myBaseBet || 0;
+      } else if (totalBetHands > 0) {
+        betDisplayAmount = totalBetHands;
+      } else {
+        betDisplayAmount = st.myBaseBet || 0;
+      }
+
+      if (betDisplayAmount > 0) {
+        const chipsRow = document.createElement("div");
+        chipsRow.className = "chips-row";
+        const chips = chipBreakdown(betDisplayAmount);
+        chips.forEach(v => {
+          const chip = document.createElement("div");
+          chip.className = "chip " + chipClassForValue(v);
+          chip.textContent = v;
+          chipsRow.appendChild(chip);
+        });
+        playerCardsDiv.appendChild(chipsRow);
+      }
+
+      const cardsRow = document.createElement("div");
+      cardsRow.className = "cards-row";
+      hands.forEach(h => {
+        h.cards.forEach(c => {
+          const div = document.createElement("div");
+          div.className = "card";
           div.textContent = cardToString(c);
           if (isRedSuit(c.suit)) div.classList.add("red");
-        }
-        dealerCardsDiv.appendChild(div);
-      });
-
-      let valText = "";
-      if (!hideHole || phase === "results") {
-        const v = handValue(tableState.dealerHand);
-        valText = "Total : " + v;
-      } else {
-        valText = "Total : ?";
-      }
-      dealerValueDiv.textContent = valText;
-    }
-
-    function renderPlayers(players, currentPlayerIndex, meIndex) {
-      playersContainer.innerHTML = "";
-      players.forEach((p, idx) => {
-        const box = document.createElement("div");
-        box.className = "player-box";
-
-        const header = document.createElement("div");
-        header.className = "player-header";
-
-        const left = document.createElement("div");
-        left.className = "player-name";
-        left.textContent = p.name + " (ID " + p.id + ")";
-
-        const right = document.createElement("div");
-
-        if (meIndex === idx) {
-          const you = document.createElement("span");
-          you.className = "badge you";
-          you.textContent = "TOI";
-          right.appendChild(you);
-        }
-
-        if (currentPlayerIndex === idx && p.status === "playing") {
-          const turn = document.createElement("span");
-          turn.className = "badge turn";
-          turn.textContent = "À JOUER";
-          right.appendChild(turn);
-        }
-
-        if (p.status === "bust") {
-          const b = document.createElement("span");
-          b.className = "badge bust";
-          b.textContent = "BUST";
-          right.appendChild(b);
-        }
-
-        if (p.status === "blackjack") {
-          const b = document.createElement("span");
-          b.className = "badge blackjack";
-          b.textContent = "BLACKJACK";
-          right.appendChild(b);
-        }
-
-        if (p.result) {
-          const r = document.createElement("span");
-          r.className = "badge";
-          r.textContent = p.result;
-          right.appendChild(r);
-        }
-
-        header.appendChild(left);
-        header.appendChild(right);
-        box.appendChild(header);
-
-        const handsDiv = document.createElement("div");
-        handsDiv.className = "hands";
-
-        p.hands.forEach((hand, hi) => {
-          const hBox = document.createElement("div");
-          hBox.className = "hand-box";
-          if (p.activeHandIndex === hi && p.status === "playing") {
-            hBox.classList.add("active");
-          }
-
-          const label = document.createElement("div");
-          label.className = "hand-label";
-          label.textContent = p.hands.length > 1 ? "Main " + (hi + 1) : "Main";
-
-          const v = handValue(hand);
-          const valSpan = document.createElement("span");
-          valSpan.className = "hand-value";
-          valSpan.textContent = "Total : " + v;
-
-          label.appendChild(valSpan);
-          hBox.appendChild(label);
-
-          const row = document.createElement("div");
-          row.className = "cards-row";
-
-          hand.forEach(c => {
-            const div = document.createElement("div");
-            div.className = "card";
-            div.textContent = cardToString(c);
-            if (isRedSuit(c.suit)) div.classList.add("red");
-            row.appendChild(div);
-          });
-
-          hBox.appendChild(row);
-          handsDiv.appendChild(hBox);
+          cardsRow.appendChild(div);
         });
-
-        box.appendChild(handsDiv);
-        playersContainer.appendChild(box);
       });
+      playerCardsDiv.appendChild(cardsRow);
+
+      if (pendingPlayerFlips > 0) {
+        const cards = playerCardsDiv.querySelectorAll(".card");
+        if (cards.length) {
+          cards[cards.length - 1].classList.add("flip");
+          pendingPlayerFlips = Math.max(0, pendingPlayerFlips - 1);
+        }
+      }
+
+      let info = st.message || "";
+      info += " | Jetons : " + st.myStack;
+      if (st.myBaseBet) info += " | Mise choisie : " + st.myBaseBet;
+      if (betDisplayAmount > 0) info += " | Mise affichée : " + betDisplayAmount;
+      actionsInfo.textContent = info;
+
+      if (!st.isMyTurn || st.phase !== "playerTurn") disableActionButtons();
     }
 
-    // ---------- UI : boutons joueur ----------
-    function enableActionButtons(allowed) {
-      hitBtn.disabled = !allowed.hit;
-      standBtn.disabled = !allowed.stand;
-      doubleBtn.disabled = !allowed.double;
-      splitBtn.disabled = !allowed.split;
+    // ---------- Boutons joueur ----------
+    function enableActionButtons(a) {
+      hitBtn.disabled    = !a.hit;
+      standBtn.disabled  = !a.stand;
+      doubleBtn.disabled = !a.double;
+      splitBtn.disabled  = !a.split;
     }
-
     function disableActionButtons() {
-      hitBtn.disabled = true;
-      standBtn.disabled = true;
-      doubleBtn.disabled = true;
-      splitBtn.disabled = true;
+      hitBtn.disabled = standBtn.disabled =
+        doubleBtn.disabled = splitBtn.disabled = true;
     }
-
-    hitBtn.addEventListener("click", () => sendActionToDealer("HIT"));
+    hitBtn.addEventListener("click",   () => sendActionToDealer("HIT"));
     standBtn.addEventListener("click", () => sendActionToDealer("STAND"));
     doubleBtn.addEventListener("click", () => sendActionToDealer("DOUBLE"));
     splitBtn.addEventListener("click", () => sendActionToDealer("SPLIT"));
 
-    // ---------- Anim cartes ----------
-    function createFlyingCard(direction, label) {
+    // ---------- Contrôles de mise (jetons cliquables) ----------
+    function sendBetUpdate() {
+      if (!serverConn || myBetDraft == null) return;
+      serverConn.send({ type: "SET_BET", amount: myBetDraft });
+    }
+
+    betClearBtn.addEventListener("click", () => {
+      if (!currentState) return;
+      myBetDraft = 0;
+      sendBetUpdate();
+    });
+
+    betControls.addEventListener("click", (e) => {
+      const target = e.target;
+      const val = target.getAttribute && target.getAttribute("data-chip");
+      if (!val) return;
+      if (!currentState) return;
+      const chipVal = parseInt(val, 10);
+      if (isNaN(chipVal) || chipVal <= 0) return;
+
+      const currentStack = currentState.myStack || 0;
+      let base = currentState.myBaseBet || 0;
+      if (myBetDraft == null) myBetDraft = base || 0;
+
+      const maxBet = currentStack > 0 ? currentStack : myBetDraft || chipVal;
+      let newBet = myBetDraft + chipVal;
+      if (newBet > maxBet) newBet = maxBet;
+
+      myBetDraft = newBet;
+      sendBetUpdate();
+    });
+
+    // ---------- Anim grosses cartes ----------
+    function spawnDealOverlay(mode, label) {
       const div = document.createElement("div");
-      div.className = "flying-card " + (direction === "top" ? "fly-top" : "fly-bottom");
+      div.className = "deal-card";
+      if (mode === "host-to-player") div.classList.add("deal-host-to-player");
+      else if (mode === "player-from-host") div.classList.add("deal-player-from-host");
+      else if (mode === "host-to-dealer") div.classList.add("deal-host-to-dealer");
       div.textContent = label || "";
       document.body.appendChild(div);
-      setTimeout(() => {
-        div.remove();
-      }, 650);
+      setTimeout(() => div.remove(), 950);
     }
+    function animateDealToPlayerHost(label)   { spawnDealOverlay("host-to-player", label); }
+    function animateDealToDealerHost(label)   { spawnDealOverlay("host-to-dealer", label); }
+    function animateDealToPlayerClient(label) { spawnDealOverlay("player-from-host", label); }
   </script>
 </body>
 </html>
