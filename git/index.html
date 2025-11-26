@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Carte 2 Téléphones</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- PeerJS depuis CDN -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #111;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .top {
+      padding: 10px;
+      background: #222;
+      font-size: 14px;
+    }
+
+    .top label {
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    .top-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    input[type="text"] {
+      padding: 6px 8px;
+      border-radius: 4px;
+      border: none;
+      flex: 1;
+      min-width: 0;
+    }
+
+    button {
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: none;
+      background: #4caf50;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .status {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #0f0;
+    }
+
+    .main {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hint {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: #aaa;
+      text-align: center;
+      padding: 4px 8px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 6px;
+    }
+
+    /* La "carte" */
+    .card {
+      width: 120px;
+      height: 180px;
+      background: linear-gradient(145deg, #ffcc00, #ff8800);
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #222;
+      position: absolute;
+      /* position de base : au centre */
+      transform: translateX(0);
+    }
+
+    /* Animations */
+    @keyframes slideOutRight {
+      from { transform: translateX(0); }
+      to   { transform: translateX(140vw); }
+    }
+
+    @keyframes slideInLeft {
+      from { transform: translateX(-140vw); }
+      to   { transform: translateX(0); }
+    }
+
+    .card.send {
+      animation: slideOutRight 0.8s ease-out forwards;
+    }
+
+    .card.receive {
+      animation: slideInLeft 0.8s ease-out forwards;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="top">
+    <div>
+      <label>Ton ID :</label>
+      <span id="myId">...</span>
+    </div>
+
+    <div class="top-row">
+      <input id="friendId" type="text" placeholder="ID de ton pote">
+      <button id="connectBtn">Se connecter</button>
+      <button id="sendBtn" disabled>Lancer la carte</button>
+    </div>
+
+    <div class="status" id="status">En attente de PeerJS…</div>
+  </div>
+
+  <div class="main">
+    <div class="hint">
+      Tournez les deux téléphones en paysage,  
+      mettez-les côte à côte,  
+      puis connectez-vous et cliquez sur "Lancer la carte".
+    </div>
+
+    <div class="card" id="card">
+      🃏
+    </div>
+  </div>
+
+  <script>
+    // --- Variables globales ---
+    const myIdSpan = document.getElementById('myId');
+    const friendIdInput = document.getElementById('friendId');
+    const connectBtn = document.getElementById('connectBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const statusDiv = document.getElementById('status');
+    const card = document.getElementById('card');
+
+    let peer = null;
+    let conn = null;
+
+    // --- Création PeerJS ---
+    // Nécessite Internet pour contacter le serveur peer par défaut
+    peer = new Peer();
+
+    peer.on('open', (id) => {
+      myIdSpan.textContent = id;
+      statusDiv.textContent = "Donne ton ID à ton pote, ou entre le sien pour te connecter.";
+    });
+
+    peer.on('error', (err) => {
+      console.error(err);
+      statusDiv.textContent = "Erreur PeerJS : " + err.type;
+    });
+
+    // Quand quelqu'un se connecte à nous
+    peer.on('connection', (c) => {
+      conn = c;
+      setupConnectionHandlers();
+    });
+
+    // Bouton "Se connecter" (on initie une connexion vers le pote)
+    connectBtn.addEventListener('click', () => {
+      const friendId = friendIdInput.value.trim();
+      if (!friendId) {
+        alert("Entre l'ID de ton pote.");
+        return;
+      }
+      statusDiv.textContent = "Connexion en cours...";
+      conn = peer.connect(friendId);
+      setupConnectionHandlers();
+    });
+
+    // Gestion de la connexion
+    function setupConnectionHandlers() {
+      if (!conn) return;
+
+      conn.on('open', () => {
+        statusDiv.textContent = "Connecté à " + conn.peer + " ✅";
+        sendBtn.disabled = false;
+      });
+
+      conn.on('data', (data) => {
+        // Quand on reçoit une commande
+        if (data && data.type === 'LAUNCH_CARD') {
+          playReceiveAnimation();
+        }
+      });
+
+      conn.on('close', () => {
+        statusDiv.textContent = "Connexion fermée.";
+        sendBtn.disabled = true;
+      });
+
+      conn.on('error', (err) => {
+        console.error(err);
+        statusDiv.textContent = "Erreur connexion : " + err.type;
+        sendBtn.disabled = true;
+      });
+    }
+
+    // Bouton "Lancer la carte"
+    sendBtn.addEventListener('click', () => {
+      if (!conn || conn.open === false) {
+        alert("Pas connecté à ton pote.");
+        return;
+      }
+      // On joue l'anim d'envoi chez nous
+      playSendAnimation();
+      // Et on envoie la commande à l'autre
+      conn.send({ type: 'LAUNCH_CARD' });
+    });
+
+    // --- Animations ---
+
+    function resetAnimations() {
+      card.classList.remove('send');
+      card.classList.remove('receive');
+      // Force le reflow pour pouvoir relancer l'animation
+      void card.offsetWidth;
+    }
+
+    function playSendAnimation() {
+      resetAnimations();
+      card.style.transform = 'translateX(0)'; // départ centre
+      card.classList.add('send'); // slide vers la droite
+    }
+
+    function playReceiveAnimation() {
+      resetAnimations();
+      card.style.transform = 'translateX(-140vw)'; // on la met hors écran à gauche
+      void card.offsetWidth; // reflow
+      card.classList.add('receive'); // elle glisse au centre
+    }
+  </script>
+
+</body>
+</html>
